@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: radial-gradient(circle, #ddd 10%, transparent 10%), 
+                              radial-gradient(circle, #ddd 10%, transparent 10%);
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 25px 200px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 400%;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }
+        .content {
+            display: none;
+            padding: 5px;
+            text-align: center;
+        }
+        #result, #encoder, #decoder, #history {
+            display: block;
+        }
+        .pagination, .zoom-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            position: relative;
+            z-index: 5;
+        }
+        .pagination a, .zoom-controls button {
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+        }
+        .pagination a:hover, .pagination a.active, .zoom-controls button:hover {
+            background-color: #007BFF;
+            color: white;
+        }
+        #result img {
+            transition: transform 0.3s;
+        }
+    </style>
+    <script>
+        let zoomLevel = 1;
+
+        function scrollToSection(sectionId) {
+            var section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function showPage(pageId) {
+            var pages = ['result', 'encoder', 'decoder', 'history'];
+            pages.forEach(function(page) {
+                var content = document.getElementById(page);
+                if (content) {
+                    content.style.display = (page === pageId) ? 'block' : 'none';
+                }
+            });
+            var paginationLinks = document.querySelectorAll('.pagination a');
+            paginationLinks.forEach(function(link) {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick').includes(pageId)) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Reset zoom level when switching sections
+            resetZoom();
+        }
+
+        function zoomIn() {
+            zoomLevel += 0.1;
+            applyZoom();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(0.1, zoomLevel - 0.1);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            var resultImage = document.querySelector('#result img');
+            resultImage.style.transform = `scale(${zoomLevel})`;
+        }
+
+        // Show 'Result' section by default
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('result');
+        });
+    </script>
+</head>
+<body>
+   
+    <div class="container">
+        <div id="result" class="content">
+            <h1>Result</h1>
+            <img src="data:image/png;base64, {{ plot_url }}" alt="Result" style="max-width: 100%; height: auto;">
+        </div>
+        <div id="encoder" class="content">
+            <h2>Model: {{ encoder_model_name }}</h2>
+            <p>{{ encoder_story }}</p>
+        </div>
+        <div id="history" class="content">
+            <h2>Model History</h2>
+            {% if model_history %}
+                <div id="plot"></div>
+                <script>
+                    var trace1 = {
+                        x: Object.keys({{ model_history['loss'] }}).map(Number),
+                        y: {{ model_history['loss'] }},
+                        mode: 'lines',
+                        name: 'Training Loss',
+                        line: {color: '#17BECF'}
+                    };
+
+                    var trace2 = {
+                        x: Object.keys({{ model_history['val_loss'] }}).map(Number),
+                        y: {{ model_history['val_loss'] }},
+                        mode: 'lines',
+                        name: 'Validation Loss',
+                        line: {color: '#7F7F7F'}
+                    };
+
+                    var data = [trace1, trace2];
+
+                    var layout = {
+                        title: 'Model Training and Validation Loss',
+                        xaxis: {
+                            title: 'Epoch'
+                        },
+                        yaxis: {
+                            title: 'Loss'
+                        }
+                    };
+
+                    Plotly.newPlot('plot', data, layout);
+                </script>
+            {% else %}
+                <p>No history available for the model.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="zoom-controls">
+        <button onclick="zoomIn()">Zoom In</button>
+        <button onclick="zoomOut()">Zoom Out</button>
+    </div>
+    <div class="pagination">
+        <a href="javascript:void(0)" onclick="showPage('result')">Result</a>
+        <a href="javascript:void(0)" onclick="showPage('encoder')">Encoder Model</a>
+        <a href="javascript:void(0)" onclick="showPage('history')">Model History</a>
+    </div>
+</body>
+</html>

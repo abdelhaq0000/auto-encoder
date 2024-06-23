@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Image and Models</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: radial-gradient(circle, #ddd 10%, transparent 10%), 
+                              radial-gradient(circle, #ddd 10%, transparent 10%);
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+        }
+        .container {
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            background-color: #f9f9f9; /* Light gray */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="file"],
+        select,
+        input[type="submit"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #007BFF; /* Blue */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3; /* Darker blue */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Image and Models</h1>
+        <form action="/" method="post" enctype="multipart/form-data">
+            <label for="file">Choose an image:</label>
+            <input type="file" name="file" id="file" required>
+
+            <label for="encoder_model">Choose encoder model:</label>
+            <select name="encoder_model" id="encoder_model" required>
+                <option value="encoder_model200_128">encoder_model200_128</option>
+                <option value="encoder_model64_32_16">encoder_model64_32_16</option>
+                <option value="encoder_model64_64_32">encoder_model64_64_32</option>
+                <option value="encoder_model128_64_8_8">encoder_model128_64_8_8</option>
+            </select>
+
+            <label for="decoder_model">Choose decoder model:</label>
+            <select name="decoder_model" id="decoder_model" required>
+                <option value="decoder_model200_128">decoder_model200_128</option>
+                <option value="decoder_model64_32_16">decoder_model64_32_16</option>
+                <option value="decoder_model64_64_32">decoder_model64_64_32</option>
+                <option value="decoder_model128_64_8_8">decoder_model128_64_8_8</option>
+            </select>
+
+            <label for="model_history">Choose model history:</label>
+            <select name="model_history" id="model_history" required>
+                <option value="model_history64_32_16.npy">model_history64_32_16.npy</option>
+                <option value="model_history128_64_8_8.npy">model_history128_64_8_8.npy</option>
+                <!-- Add more options for other model histories -->
+            </select>
+
+            <input type="submit" value="Upload">
+        </form>
+    </div>
+</body>
+</html>
